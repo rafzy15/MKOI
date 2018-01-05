@@ -1,4 +1,4 @@
-package TestFX1.TestFX1;
+package controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

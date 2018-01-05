@@ -1,4 +1,4 @@
-package TestFX1.TestFX1;
+package controllers;
 
 import com.sun.glass.events.MouseEvent;
 
