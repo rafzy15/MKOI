@@ -42,7 +42,6 @@ public class HMAC {
         if (key.length < blockSize) {
             key = Arrays.copyOf(key, blockSize);
         }
-        System.out.println(Hex.toHexString(key));
         byte[] outer_pad = xorWithConstant((byte) 0x5c, key);
         byte[] inner_pad = xorWithConstant((byte) 0x36, key);
         byte[] SHAStep = SHA3.digest(concatenateTwoArrays(inner_pad, message));

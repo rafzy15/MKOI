@@ -24,31 +24,31 @@ class Packet {
 }
 
 public class TcpClient {
+    Socket s;
     private HMAC hmac = new HMAC();
     public static void main(String[] args) throws Exception {
-        TcpClient tcpClient = new TcpClient();
-        tcpClient.createSocketAndSend("pom.xml",1988);
+        TcpClient tcpClient = new TcpClient(Properties.CLIENT_SEND_PORT);
+        tcpClient.sendFile("/home/rafal/Downloads/SzymaniukRafal-KPF-esej(empiryzm w ujęciu Bacona).pdf",tcpClient.s);
+//        tcpClient.sendFile("pom.xml",tcpClient.s);
     }
-    public void createSocketAndSend(String file,int port){
+
+    public TcpClient(int port) {
         try {
-            Socket s;
-            TcpClient tcpClient = new TcpClient();
             s = new Socket("localhost",port);
-            tcpClient.sendFile(file,s);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
     public  void sendFile(String file,Socket s) throws IOException {
         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
         FileInputStream fis = new FileInputStream(file);
         byte[] buffer = new byte[4096];
-        
         while (fis.read(buffer) > 0) {
             byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
             dos.write(buffer);
             dos.write(mac);
-            System.out.println("mess = " + Hex.toHexString(buffer) + "mac = " 
+            System.out.println("mac = " 
                     + Hex.toHexString(mac));
         }
 
