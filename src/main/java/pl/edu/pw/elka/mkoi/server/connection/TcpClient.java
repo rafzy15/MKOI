@@ -5,30 +5,55 @@
  */
 package pl.edu.pw.elka.mkoi.server.connection;
 
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.util.encoders.Hex;
+import pl.edu.pw.elka.mkoi.server.crypto.HMAC;
 
 /**
  *
  * @author rafal
  */
 class Packet {
+
     int MAC;
 }
 
 public class TcpClient {
+    Socket s;
+    private HMAC hmac = new HMAC();
+    public static void main(String[] args) throws Exception {
+        TcpClient tcpClient = new TcpClient(Properties.CLIENT_SEND_PORT);
+        tcpClient.sendFile("/home/rafal/Downloads/SzymaniukRafal-KPF-esej(empiryzm w ujęciu Bacona).pdf",tcpClient.s);
+//        tcpClient.sendFile("pom.xml",tcpClient.s);
+    }
 
-    public static void main(String[] args) {
+    public TcpClient(int port) {
         try {
-            Socket socket = new Socket("127.0.0.1", 1234);
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.print(new Packet());
-            
-            out.close();
-            socket.close();
+            s = new Socket("localhost",port);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    public  void sendFile(String file,Socket s) throws IOException {
+        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] buffer = new byte[4096];
+        while (fis.read(buffer) > 0) {
+            byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+            dos.write(buffer);
+            dos.write(mac);
+            System.out.println("mac = " 
+                    + Hex.toHexString(mac));
+        }
+
+        fis.close();
+        dos.close();
+    }
+     
 }
