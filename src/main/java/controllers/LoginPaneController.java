@@ -4,13 +4,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class LoginPaneController
 {
-	  @FXML
-	    private Button ZalogujButton;
+	@FXML
+    private TextField LoginUserField;
+
+    @FXML
+    private Button ZalogujButton;
+
+    @FXML
+    private PasswordField LoginPasswordField;
 	
 	  public LoginPaneController()
 		{}
@@ -18,6 +26,9 @@ public class LoginPaneController
 	@FXML
 	public void onClickZalogujButton() 
 	{
+		
+		System.out.println(LoginUserField.getText());
+		System.out.println(LoginPasswordField.getText());
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(this.getClass().getResource("/fxml/ClientPane.fxml"));
