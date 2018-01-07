@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MethodTests;
+package pl.edu.pw.elka.mkoi.tests.cryptography;
 
 import org.bouncycastle.jcajce.provider.digest.MD5;
 import org.bouncycastle.jcajce.provider.digest.SHA256;
