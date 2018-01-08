@@ -41,6 +41,9 @@ public class LoginPaneController
 		
 			loginstage.setTitle("Menu klienta");
 			loginstage.show();		
+			
+			Stage stage = (Stage) ZalogujButton.getScene().getWindow();
+		    stage.close();	
 		
 		}catch (Exception e) {
 			System.out.println("Nie mozna otworzyc nowego okna");
