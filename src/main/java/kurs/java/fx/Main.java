@@ -1,6 +1,7 @@
 package kurs.java.fx;
 
 
+import controllers.LoginPaneController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -30,6 +31,8 @@ public class Main extends Application {
 	
 		primaryStage.setTitle("Panel logowania");
 		primaryStage.show();
+		//LoginPaneController loginpanecntrl1 = null;
+		//loginpanecntrl1.verifyUser("kamil", "kamil");
 		
 	}
 

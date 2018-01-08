@@ -13,6 +13,6 @@
       <TextField fx:id="NewUserPodajNazwe" layoutX="43.0" layoutY="107.0" />
       <Label layoutX="43.0" layoutY="132.0" text="Podaj haslo" />
       <PasswordField fx:id="NewUserPodajHaslo" layoutX="43.0" layoutY="149.0" />
-      <Button fx:id="CreateNewUserButton" layoutX="137.0" layoutY="188.0" mnemonicParsing="false" onMouseClicked="#OnClickCreateUser" text="Utworz" />
+      <Button fx:id="ButtonCreateNewUser" layoutX="137.0" layoutY="188.0" mnemonicParsing="false" onMouseClicked="#OnClickCreateUser" text="Utworz" />
    </children>
 </Pane>
