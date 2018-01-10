@@ -88,9 +88,10 @@ public class ChaffAgent extends Thread {
     }
 
     public static void main(String[] args) {
-        //client sends file
+        //client sends file through chaffAgent to server
         FileServer fs = new FileServer(Properties.SERVER_RECEIVE_PORT,Properties.SERVER_SEND_PORT);
         fs.start();
+        
         ChaffAgent ca = new ChaffAgent(Properties.CLIENT_SEND_PORT, Properties.SERVER_RECEIVE_PORT);
         ca.start();
     }

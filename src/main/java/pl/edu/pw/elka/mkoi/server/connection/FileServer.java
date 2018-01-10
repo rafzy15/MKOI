@@ -30,7 +30,7 @@ public class FileServer extends Thread {
     public FileServer(int sendPort, int receivePort) {
         try {
             ss = new ServerSocket(receivePort);
-            toSendSocket = new Socket("localhost", sendPort);
+//            toSendSocket = new Socket("localhost", sendPort);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,9 +46,10 @@ public class FileServer extends Thread {
             }
         }
     }
-    //make it on button click
+   
     private void saveFile(Socket clientSock) throws IOException {
         DataInputStream dis = new DataInputStream(clientSock.getInputStream());
+       
         FileOutputStream fos = new FileOutputStream("pom112.pdf");
         byte[] buffer = new byte[4096];
         byte[] hmacAttached = new byte[64];
@@ -77,7 +78,7 @@ public class FileServer extends Thread {
         fos.close();
         dis.close();
     }
-
+     //make it on button click
     public void sendFile(String file, Socket s) throws IOException {
         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
         FileInputStream fis = new FileInputStream(file);
@@ -89,7 +90,6 @@ public class FileServer extends Thread {
             System.out.println("mac = "
                     + Hex.toHexString(mac));
         }
-
         fis.close();
         dos.close();
     }

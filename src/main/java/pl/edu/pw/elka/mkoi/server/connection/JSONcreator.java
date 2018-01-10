@@ -5,7 +5,6 @@
  */
 package pl.edu.pw.elka.mkoi.server.connection;
 
-import jdk.nashorn.internal.ir.debug.JSONWriter;
 import org.json.JSONObject;
 
 /**
@@ -24,6 +23,12 @@ public class JSONcreator {
         JSONObject item = new JSONObject();
         item.put("Messsage-type", responseType);
         item.put("Status", status);
+        return item;
+    }
+    public JSONObject getFileMessage(String messageType,String requestedFile){
+        JSONObject item = new JSONObject();
+        item.put("Messsage-type", messageType);
+        item.put("Requested-file", requestedFile);
         return item;
     }
 }

@@ -16,4 +16,5 @@ public class Properties {
     public final static int CLIENT_RECEIVE_PORT = 1991;
     
     public final static int ADDITIONAL_CHAF_PER_BUFFER=1;
+    public final static String MESSAGE_GET_FILE="File request";
 }
