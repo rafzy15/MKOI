@@ -20,10 +20,17 @@ public class JSONcreator {
         item.put("Password", password);
         return item;
     }
-    public JSONObject createReturnMessage(String status,String responseType){
+    public JSONObject createGeneralMessage(String responseType,String status){
         JSONObject item = new JSONObject();
-        item.put("Messsage-type", responseType);
-        item.put("Status", status);
+        item.put(Properties.MESSAGE_TYPE, responseType);
+        item.put(Properties.MESSAGE_BODY, status);
         return item;
     }
+    public JSONObject clientRequestFile(String request,String file){
+        JSONObject item = new JSONObject();
+        item.put(Properties.MESSAGE_TYPE, request);
+        item.put("File", file );
+        return item;
+    }
+
 }
