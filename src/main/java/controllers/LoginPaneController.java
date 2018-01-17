@@ -34,13 +34,7 @@ public class LoginPaneController
 
 	@FXML
 	public void onClickZalogujButton() throws IOException 
-	{
-		
-		//System.out.println(LoginUserField.getText());
-		//System.out.println(LoginPasswordField.getText());
-		
-		//System.out.println(verifyUser(LoginUserField.getText(), LoginPasswordField.getText()));
-		
+	{				
 		if(verifyUser(LoginUserField.getText(), LoginPasswordField.getText())== false)
 		{
 			FXMLLoader loader = new FXMLLoader();

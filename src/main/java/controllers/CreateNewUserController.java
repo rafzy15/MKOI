@@ -17,7 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.scene.control.*;
-
+import controllers.ServerPaneController;
 public class CreateNewUserController
 {
 	  @FXML
@@ -35,29 +35,23 @@ public class CreateNewUserController
 	    	
 	    	
 	    	String username = NewUserPodajNazwe.getText();
-	    	String password = NewUserPodajHaslo.getText();
-	    	
-	    	System.out.println(username + " " + password);	    	
+	    	String password = NewUserPodajHaslo.getText();	    	
+	    		    	
 	    	WriteNewUserToFile(username, password);    	
+	    		    	
+	    	Stage stage = (Stage) ButtonCreateNewUser.getScene().getWindow();
+	    	stage.close();
 	    	
-	    	//Stage stage = (Stage) ButtonCreateNewUser.getScene().getWindow();
-	       // stage.close();	    	
-	    	
-	        //Platform.exit();
-	        
-	        //Window stage1 = node.getScene().getWindow();
-	       // stage1.hide();
 	    	
 	    }
 	    
 	    public static void WriteNewUserToFile(String user, String password) throws IOException
 	    {
 	    	File users = new File("Users.txt");
-	    	try(  PrintWriter out = new PrintWriter(new FileWriter(users, true))  ){
-	    	    out.println(user + " " + password );
-	    	    
-	    	}
-	    	
+	    	try(  PrintWriter out = new PrintWriter(new FileWriter(users, true))  )
+	    	{
+	    	    out.println(user + " " + password );	    	    
+	    	}	    	
 	    }
 	    
 	    
