@@ -40,35 +40,41 @@ public class ChaffAgent extends Thread {
         while (true) {
             try {
                 Socket clientSock = ss.accept();
-                saveFile(clientSock);
+                attachChaff(clientSock);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void saveFile(Socket clientSock) throws IOException {
+    private void attachChaff(Socket clientSock) throws IOException {
         DataInputStream dis = new DataInputStream(clientSock.getInputStream());
 //        FileOutputStream fos = new FileOutputStream("pom11.pdf");
         DataOutputStream dos = new DataOutputStream(toSendSocket.getOutputStream());
-
+        
         byte[] buffer = new byte[4096];
         byte[] hmacAttached = new byte[64];
 
         int read = 0;
         int totalRead = 0;
+        
         while ((read = dis.read(buffer, 0, buffer.length)) != -1) {
             totalRead += read;
             dis.read(hmacAttached, 0, hmacAttached.length);
 //           add to different position
+           
             int messagePosition =generateMessagePosition(Properties.ADDITIONAL_CHAF_PER_BUFFER+1);
             for (int i = 0; i < Properties.ADDITIONAL_CHAF_PER_BUFFER+1; i++) {
                 if(i== messagePosition){
                     dos.write(buffer);
                     dos.write(hmacAttached);
+                    System.out.println("hmac OK" + Hex.toHexString(buffer));
+                    System.out.println("hmac OK" + Hex.toHexString(hmacAttached));
                 }else{
                     byte[] chaff = generateChaff();
                     byte[] chaffMac = hmac.hmac("anotherKey".getBytes(), chaff, new SHA3.Digest512(), 64);
+                    System.out.println("hmac " + Hex.toHexString(chaff));
+                    System.out.println("hmac " + Hex.toHexString(chaffMac));
                     dos.write(chaff);
                     dos.write(chaffMac);
                 }
@@ -76,6 +82,7 @@ public class ChaffAgent extends Thread {
 
         }
         dis.close();
+        dos.close();
     }
     public int generateMessagePosition(int nr){
         return new Random().nextInt(nr);
@@ -88,10 +95,9 @@ public class ChaffAgent extends Thread {
     }
 
     public static void main(String[] args) {
-        //client sends file through chaffAgent to server
-        FileServer fs = new FileServer(Properties.SERVER_RECEIVE_PORT,Properties.SERVER_SEND_PORT);
-        fs.start();
-        
+        //client sends file
+//        FileServer fs = new FileServer(Properties.SERVER_RECEIVE_PORT,Properties.SERVER_SEND_PORT);
+//        fs.start();
         ChaffAgent ca = new ChaffAgent(Properties.CLIENT_SEND_PORT, Properties.SERVER_RECEIVE_PORT);
         ca.start();
     }
