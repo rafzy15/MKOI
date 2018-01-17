@@ -1,5 +1,6 @@
 package kurs.java.fx;
 
+import controllers.ServerPaneController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ public class MenuServera extends Application {
 	public static void main(String[] args) 
 	{
 		launch(args);
+	
 	}
 
 	@Override
