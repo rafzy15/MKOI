@@ -69,7 +69,6 @@ public class ChaffAgent extends Thread {
         int totalRead = 0;
 
         while ((read = dis.read(buffer, 0, buffer.length)) != -1) {
-            System.out.println("what goin on");
             initializeSocket();
             if (dos == null) {
                 dos = new DataOutputStream(toSendSocket.getOutputStream());

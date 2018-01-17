@@ -50,7 +50,7 @@ public class FileServer extends Thread {
                 Thread.sleep(10000);
             } catch (IOException e) {
                 e.printStackTrace();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -86,7 +86,6 @@ public class FileServer extends Thread {
         dis.close();
         fos.close();
     }*/
-
 //    public void sendFile(String file, Socket s) throws IOException {
 //        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 //        FileInputStream fis = new FileInputStream(file);
@@ -135,33 +134,55 @@ public class FileServer extends Thread {
 //                break;
 //        }
     }
-    public int whatComming(Socket incomingSocket) throws Exception {
+
+    public void whatComming(Socket incomingSocket) throws Exception {
         byte[] buffer = new byte[4096];
         byte[] hmacAttached = new byte[64];
+        FileOutputStream fos = new FileOutputStream("newFile.pdf");
         DataOutputStream dos = new DataOutputStream(toSendSocket.getOutputStream());
         DataInputStream dis = new DataInputStream(incomingSocket.getInputStream());
         while (dis.read(buffer, 0, buffer.length) != -1) {
-            byte[] ownGeneratedMac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);;
+            byte[] ownGeneratedMac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
             dis.read(hmacAttached, 0, hmacAttached.length);
+            System.out.println("buffer= "+ Hex.toHexString(buffer));
             if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                 String comming = new String(buffer);
-                if(comming.startsWith("{")){
+                if (comming.startsWith("{")) {
                     JSONObject clientMessage = new JSONObject(new String(buffer));
                     if (clientMessage.getString(Properties.MESSAGE_TYPE).
                             equals(Properties.CLIENT_SEND_FILE)) {
                         System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
-                        byte[] json =jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE, 
+                        byte[] json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
                                 Properties.ACK).toString().getBytes();
-                        dos.write(buffer);
-                        System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
+                        byte[] buffer1 = new byte[4096];
+                        buffer1 = fillArray(buffer1, json);
+                        dos.write(buffer1);
+                        byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                        dos.write(ownGeneratedMacSend);
+                        transmitingFile = true;
+                    } else if (clientMessage.getString(Properties.MESSAGE_TYPE).
+                            equals(Properties.FINISHED_SENDING)) {
+                        System.out.println("Server says :  I received json message \n" + clientMessage.toString());
+                        transmitingFile = false;
+                    } else {
+                        System.out.println("Server says :  I received json message \n" + clientMessage.toString());
+
                     }
+                } else if (transmitingFile) {
+                    System.out.println("Server says : HMAC OK "+ Hex.toHexString(ownGeneratedMac));
+                    fos.write(buffer, 0, buffer.length);
                 }
-            }else{
-                System.out.println("Server says : Wrong MAC not reading" + Hex.toHexString(buffer));
+
+            } else {
+                System.out.println("Server says : Wrong MAC not reading " + Hex.toHexString(ownGeneratedMac));
+
             }
         }
-        return -1;
+        fos.close();
+        dis.close();
+        dos.close();
     }
+
     private boolean hmacsEquals(byte[] ownHmac, byte[] attachedHmac) {
         return Arrays.areEqual(ownHmac, attachedHmac);
     }
@@ -177,8 +198,17 @@ public class FileServer extends Thread {
         }
 
     }
+
     public static void main(String[] args) {
         FileServer fs = new FileServer(Properties.SERVER_RECEIVE_PORT);
         fs.start();
+    }
+
+    private byte[] fillArray(byte[] buffer, byte[] toFill) {
+        for (int i = 0; i < toFill.length; i++) {
+            buffer[i] = toFill[i];
+        }
+        return buffer;
+
     }
 }

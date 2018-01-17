@@ -56,8 +56,6 @@ public class TcpClient {
         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 //        DataInputStream dis = new DataInputStream(s.getInputStream());
 
-//        dos.write(jSONcreator.createLoginMessage("rafal", "rafal").toString().getBytes());
-//        dos.write(jSONcreator.clientRequestSendFile(Properties.REQUEST_FILE, "pom.xml").toString().getBytes());
         //TODO Make it depandable on button click
         if (action == Properties.ACTION_REQUEST_TO_SEND_FILE) {
             requestToSendFile(dos, file);
@@ -82,7 +80,6 @@ public class TcpClient {
                         System.out.println("Client says: Received ACK, I'm sending file " + file);
                         dis.close();
                         return Properties.ACTION_SEND_FILE;
-//                    sendFile(dos, fis, buffer);
                     } else {
                         System.out.println("Client says: Server did not send ACK");
                         dis.close();
@@ -90,6 +87,7 @@ public class TcpClient {
                 }
             }
         }
+        dis.close();
         return -1;
     }
 
@@ -98,14 +96,28 @@ public class TcpClient {
         byte[] buffer = new byte[4096];
         while (fis.read(buffer) > 0) {
             byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+            if(buffer.length < 4096){
+                System.out.println("buff < " + buffer.length);
+            }
             dos.write(buffer);
             dos.write(mac);
             System.out.println("Client says : mac = "
                     + Hex.toHexString(mac));
+            System.out.println("Client says : bufor = "
+                    + Hex.toHexString(buffer));
+            
+        
         }
-
-        dos.write(jSONcreator.createGeneralMessage(Properties.FINISHED_SENDING, "OK").
-                toString().getBytes());
+        byte[] buffer1 = new byte[4096];
+        byte[] json = jSONcreator.createGeneralMessage(Properties.FINISHED_SENDING, "OK").
+                toString().getBytes();
+        buffer1 = fillArray(buffer1, json);
+        byte[] mac = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64); 
+        dos.write(buffer1);
+        dos.write(mac);
+        System.out.println("Client says : sending ACK with MAC = "
+                    + Hex.toHexString(mac));
+        
         System.out.println("Client says : I finished sending file");
         fis.close();
     }
