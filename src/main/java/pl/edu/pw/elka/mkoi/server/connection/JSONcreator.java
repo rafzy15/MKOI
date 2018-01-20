@@ -24,12 +24,14 @@ public class JSONcreator {
         JSONObject item = new JSONObject();
         item.put(Properties.MESSAGE_TYPE, responseType);
         item.put(Properties.MESSAGE_BODY, status);
+        item.put(Properties.FILE, "myNew");
         return item;
     }
-    public JSONObject clientRequestFile(String request,String file){
+    public JSONObject clientRequestFile(String request,String file,String login){
         JSONObject item = new JSONObject();
         item.put(Properties.MESSAGE_TYPE, request);
-        item.put("File", file );
+        item.put(Properties.FILE, file);
+        item.put("login", login);
         return item;
     }
 

@@ -19,10 +19,12 @@ public class Properties {
     
     public final static String CLIENT_REQUEST_FILE = "Request-file";
     public final static String CLIENT_SEND_FILE = "Send-file";
+    public final static String CLIENT_GET_HASH = "Hash-file";
     public final static String MESSAGE_TYPE = "Message-type";
     public final static String RESPONSE_TYPE = "Response-type";
     public final static String MESSAGE_BODY = "Message-Body";
     public final static String FINISHED_SENDING = "Finished-sending";
+    public final static String FILE = "File";
     
     //-------------------------------------------
     public final static int ACTION_SEND_FILE = 1;
