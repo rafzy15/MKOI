@@ -49,9 +49,12 @@ public class ClientPaneController {
 	        //fileChooser.showOpenDialog(PobierzPlikKlient.getParentPopup().getScene().getWindow());
 	        Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
 	    File file = fileChooser.showOpenDialog(stage);
-	    /*if (file != null) 
-	    	Desktop.getDesktop().open(file);*/
-	    String filePath = file.getAbsolutePath(); 
+	    if (file != null) 
+	    {
+	    	//Desktop.getDesktop().open(file);
+	    	String filePath = file.getAbsolutePath(); 
+	    }
+	    
         
 	    
 	    }
@@ -69,9 +72,12 @@ public class ClientPaneController {
 	        //fileChooser.showOpenDialog(PobierzPlikKlient.getParentPopup().getScene().getWindow());
 	        Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
 	    File file = fileChooser.showOpenDialog(stage);
-	    /*if (file != null) 
-	    	Desktop.getDesktop().open(file);*/
-	    String filePath = file.getAbsolutePath(); 
+	    if (file != null) 
+	    {
+	    	//Desktop.getDesktop().open(file);
+	    	String filePath = file.getAbsolutePath(); 
+	    }
+	    
 	    }
 
 	    @FXML
