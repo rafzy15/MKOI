@@ -1,22 +1,20 @@
-package kurs.java.fx;
+package pl.edu.pw.elka.mkoi.gui;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
+public class LogReader {
 
-public class LogReader 
-{
-	private static boolean canBreak = false;
+    private static boolean canBreak = false;
 
     public static void startReading(String filename) throws InterruptedException, IOException {
         canBreak = false;
         String line;
         try {
             LineNumberReader lnr = new LineNumberReader(new FileReader(filename));
-            while (!canBreak)
-            {
+            while (!canBreak) {
                 line = lnr.readLine();
                 if (line == null) {
                     //System.out.println("czekam 3 sekundy");
@@ -37,6 +35,6 @@ public class LogReader
 
     private static void processLine(String s) {
         //processing line
-    	 System.out.println(s);
+        System.out.println(s);
     }
 }

@@ -1,4 +1,4 @@
-package controllers;
+package pl.edu.pw.elka.mkoi.guicontrollers;
 
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
@@ -6,14 +6,13 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class AuthorizationFailedController {
-	
-	 @FXML
-	    private StackPane AuthorizationFailedZamknijButton;
 
-	    @FXML
-	    void OnClickAuthorizationFailedZamknijButton(MouseEvent event) 
-	    {
-	    	/*try
+    @FXML
+    private StackPane AuthorizationFailedZamknijButton;
+
+    @FXML
+    void OnClickAuthorizationFailedZamknijButton(MouseEvent event) {
+        /*try
 	    	{
 	    		
 	    	Stage stage = (Stage) AuthorizationFailedZamknijButton.getScene().getWindow();
@@ -22,9 +21,6 @@ public class AuthorizationFailedController {
 	    	}catch (Exception e) {
 	    			System.out.println("Nie mozna otworzyc nowego okna");
 	    	}*/
-	    }
-	    
-	    
-	    
+    }
 
 }
