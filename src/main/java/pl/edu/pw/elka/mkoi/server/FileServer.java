@@ -42,6 +42,7 @@ public class FileServer extends Thread {
     private boolean clientSendingFile = false;
     private JSONcreator jSONcreator = JSONcreator.getInstance();
     private String login = "";
+    private String ClientPublicKey = "";
 
     public FileServer(int receivePort) {
         try {
@@ -257,5 +258,23 @@ public class FileServer extends Thread {
             }
         }
         return results;
+    }
+    
+    public String ReadUserKey(String UserName) throws FileNotFoundException
+    {
+    	Scanner input = new Scanner(new File("klucze_server.txt")); 
+
+		while(input.hasNext())
+		{ 
+		String usr = input.next(); 
+		String pass = input.next(); 
+		
+			if(usr.equals(UserName))
+			{
+				ClientPublicKey = pass;
+				break;
+			}			
+		}		
+		return ClientPublicKey;
     }
 }
