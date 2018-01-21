@@ -14,12 +14,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import java.io.LineNumberReader;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.Scanner;
+import javafx.fxml.Initializable;
+import pl.edu.pw.elka.mkoi.server.ChaffAgent;
+import pl.edu.pw.elka.mkoi.server.JSONcreator;
+import pl.edu.pw.elka.mkoi.server.Properties;
+import pl.edu.pw.elka.mkoi.server.TcpClient;
 
-public class LoginPaneController {
-
+public class LoginPaneController implements Initializable {
+    static String loggedAs ="";
     private static final Exception Exception = null;
-
+    JSONcreator jSONcreator = JSONcreator.getInstance();
+    TcpClient tcpClient = null;
     @FXML
     private TextField LoginUserField;
 
@@ -32,103 +40,60 @@ public class LoginPaneController {
     public LoginPaneController() {
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        ChaffAgent ca = new ChaffAgent(Properties.CLIENT_SEND_PORT, Properties.SERVER_RECEIVE_PORT);
+        ca.start();
+        tcpClient = TcpClient.getInstance();
+    }
+
     @FXML
-    public void onClickZalogujButton() throws IOException {
-        if (verifyUser(LoginUserField.getText(), LoginPasswordField.getText()) == false) {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(this.getClass().getResource("/fxml/AuthorizationFailedWindow.fxml"));
-            StackPane stackPane1 = loader.load();
-            Stage authfail = new Stage();
-            Scene scene = new Scene(stackPane1);
-            authfail.setScene(scene);
-
-            authfail.setTitle("Blad uwierzytelnienia");
-            authfail.show();
-
+    public void onClickZalogujButton() throws Exception {
+        byte[] jsonBytes = jSONcreator.createLoginMessage(LoginUserField.getText(), LoginPasswordField.getText()).
+                toString().getBytes();
+        int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+        if (response != 1) {
+            showFailureWindow();
         } else {
-            try {
-
-                FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(this.getClass().getResource("/fxml/ClientPane.fxml"));
-                StackPane stackPane = loader.load();
-
-                Stage loginstage = new Stage();
-                //StackPaneController controller = loader.getController();
-                Scene scene = new Scene(stackPane);
-                loginstage.setScene(scene);
-
-                loginstage.setTitle("Menu klienta");
-                loginstage.show();
-
-                Stage stage = (Stage) ZalogujButton.getScene().getWindow();
-                stage.close();
-
-            } catch (Exception e) {
-                System.out.println("Nie mozna otworzyc nowego okna");
-            }
+            loggedAs = LoginUserField.getText();
+            showMenuClient();
         }
     }
 
-    public static boolean verifyUser(String UserName, String Password) throws FileNotFoundException {
-        //int NumberOfLinesInFile = LineNumberReader();
+    private void showFailureWindow() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(this.getClass().getResource("/fxml/AuthorizationFailedWindow.fxml"));
+        StackPane stackPane1 = loader.load();
+        Stage authfail = new Stage();
+        Scene scene = new Scene(stackPane1);
+        authfail.setScene(scene);
 
-        boolean ifUsrPassCorrect = false;
-
-        Scanner input = new Scanner(new File("Users.txt"));
-
-        while (input.hasNext()) {
-            String usr = input.next();
-            String pass = input.next();
-
-            //System.out.println("Funkcja VerifyUsr");
-            //System.out.println(usr);
-            //System.out.println(UserName);
-            //System.out.println(pass);
-            //System.out.println(Password);
-            //System.out.println(" ");
-            if (usr.equals(UserName) && pass.equals(Password)) {
-                ifUsrPassCorrect = true;
-                //System.out.println(" true!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                break;
-            } else {
-                ifUsrPassCorrect = false;
-            }
-        }
-
-        return ifUsrPassCorrect;
-
+        authfail.setTitle("Blad uwierzytelnienia");
+        authfail.show();
     }
 
-    public static int LineNumberReader() {
-        int linenumber = 0;
-
+    private void showMenuClient() {
         try {
 
-            File file = new File("Users.txt");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(this.getClass().getResource("/fxml/ClientPane.fxml"));
+            StackPane stackPane = loader.load();
 
-            if (file.exists()) {
+            Stage loginstage = new Stage();
+            //StackPaneController controller = loader.getController();
+            Scene scene = new Scene(stackPane);
+            loginstage.setScene(scene);
 
-                FileReader fr = new FileReader(file);
-                LineNumberReader lnr = new LineNumberReader(fr);
+            loginstage.setTitle("Menu klienta");
+            loginstage.show();
 
-                while (lnr.readLine() != null) {
-                    linenumber++;
-                }
+            Stage stage = (Stage) ZalogujButton.getScene().getWindow();
+            stage.close();
 
-                System.out.println("Total number of lines : " + linenumber);
-
-                lnr.close();
-
-            } else {
-                System.out.println("File does not exists!");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Nie mozna otworzyc nowego okna");
         }
-
-        return linenumber;
-
     }
+    
 
 }

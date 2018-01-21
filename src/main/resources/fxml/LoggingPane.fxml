@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<StackPane prefHeight="428.0" prefWidth="607.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoggingPaaneController">
+<StackPane prefHeight="428.0" prefWidth="607.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pw.elka.mkoi.guicontrollers.LoggingPaaneController">
    <children>
       <AnchorPane prefHeight="200.0" prefWidth="200.0">
          <children>

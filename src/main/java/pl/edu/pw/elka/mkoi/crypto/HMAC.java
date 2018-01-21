@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pl.edu.pw.elka.mkoi.server.crypto;
+package pl.edu.pw.elka.mkoi.crypto;
 
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;

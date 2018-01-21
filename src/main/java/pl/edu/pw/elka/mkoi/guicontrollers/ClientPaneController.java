@@ -8,16 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.glass.events.MouseEvent;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import pl.edu.pw.elka.mkoi.server.ChaffAgent;
+import pl.edu.pw.elka.mkoi.server.JSONcreator;
+import pl.edu.pw.elka.mkoi.server.Properties;
+import pl.edu.pw.elka.mkoi.server.TcpClient;
 
-public class ClientPaneController {
+public class ClientPaneController{
 
     @FXML
     private Button PrzekazPlikKlient;
@@ -39,7 +46,6 @@ public class ClientPaneController {
 
     public ClientPaneController() {
     }
-
     @FXML
     public void OnClickPobierzPlikKlient() throws IOException {
         FileChooser fileChooser = new FileChooser();
@@ -61,14 +67,21 @@ public class ClientPaneController {
 
     @FXML
     public void OnClickPrzekazPlikKlient() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Otworz plik");
-        //fileChooser.showOpenDialog(PobierzPlikKlient.getParentPopup().getScene().getWindow());
-        Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            //Desktop.getDesktop().open(file);
-            String filePath = file.getAbsolutePath();
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Otworz plik");
+            //fileChooser.showOpenDialog(PobierzPlikKlient.getParentPopup().getScene().getWindow());
+            Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
+            File file = fileChooser.showOpenDialog(stage);
+            if (file != null) {
+                //Desktop.getDesktop().open(file);
+                String filePath = file.getAbsolutePath();
+                TcpClient tcpClient = TcpClient.getInstance();
+                byte[] jsonBytes = tcpClient.createByteJson(filePath, LoginPaneController.loggedAs);
+                int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pl.edu.pw.elka.mkoi.server.connection;
+package pl.edu.pw.elka.mkoi.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,7 +15,7 @@ import java.util.Random;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
-import pl.edu.pw.elka.mkoi.server.crypto.HMAC;
+import pl.edu.pw.elka.mkoi.crypto.HMAC;
 
 /**
  *
@@ -61,31 +61,27 @@ public class ChaffAgent extends Thread {
 
         DataInputStream dis = new DataInputStream(clientSock.getInputStream());
         DataOutputStream dos = null;
-
         byte[] buffer = new byte[4096];
         byte[] hmacAttached = new byte[64];
-
         int read = 0;
-        int totalRead = 0;
-
         while ((read = dis.read(buffer, 0, buffer.length)) != -1) {
+            System.out.println(read);
             initializeSocket();
             if (dos == null) {
                 dos = new DataOutputStream(toSendSocket.getOutputStream());
             }
-            totalRead += read;
-            dis.read(hmacAttached, 0, hmacAttached.length);
+            read = dis.read(hmacAttached, 0, hmacAttached.length);
 //           add to different position
             int messagePosition = generateMessagePosition(Properties.ADDITIONAL_CHAF_PER_BUFFER + 1);
             for (int i = 0; i < Properties.ADDITIONAL_CHAF_PER_BUFFER + 1; i++) {
                 if (i == messagePosition) {
                     dos.write(buffer);
                     dos.write(hmacAttached);
-                    System.out.println("CA says : received HMAC " +Hex.toHexString(hmacAttached));
+                    System.out.println("CA says : received HMAC " + Hex.toHexString(hmacAttached));
                 } else {
                     byte[] chaff = generateChaff();
                     byte[] chaffMac = hmac.hmac("anotherKey".getBytes(), chaff, new SHA3.Digest512(), 64);
-                    System.out.println("CA says : generated winnnowed HMAC " +Hex.toHexString(chaffMac));
+                    System.out.println("CA says : generated winnnowed HMAC " + Hex.toHexString(chaffMac));
                     dos.write(chaff);
                     dos.write(chaffMac);
                 }
@@ -112,12 +108,15 @@ public class ChaffAgent extends Thread {
         responseSecure.start();
         ChaffAgent ca = new ChaffAgent(Properties.CLIENT_SEND_PORT, Properties.SERVER_RECEIVE_PORT);
         ca.start();
-        
+
     }
 
     private void initializeSocket() throws IOException {
         if (toSendSocket == null) {
             toSendSocket = new Socket("localhost", clientPort);
+        } else if (toSendSocket.isClosed()) {
+            toSendSocket = new Socket("localhost", clientPort);
         }
+
     }
 }

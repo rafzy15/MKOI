@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pl.edu.pw.elka.mkoi.server.connection;
+package pl.edu.pw.elka.mkoi.server;
 
 import jdk.nashorn.internal.ir.debug.JSONWriter;
 import org.json.JSONObject;
@@ -13,9 +13,12 @@ import org.json.JSONObject;
  * @author rafal
  */
 public class JSONcreator {
+    private JSONcreator(){
+        
+    }
     public JSONObject createLoginMessage(String login,String password){
         JSONObject item = new JSONObject();
-        item.put("Messsage-type", "login");
+        item.put(Properties.MESSAGE_TYPE, Properties.CLIENT_LOG_IN_REQUEST);
         item.put("Login", login);
         item.put("Password", password);
         return item;
@@ -27,12 +30,19 @@ public class JSONcreator {
         item.put(Properties.FILE, "myNew");
         return item;
     }
-    public JSONObject clientRequestFile(String request,String file,String login){
+    public JSONObject clientFileJson(String request,String file,String login){
         JSONObject item = new JSONObject();
         item.put(Properties.MESSAGE_TYPE, request);
         item.put(Properties.FILE, file);
-        item.put("login", login);
+        item.put(Properties.LOGGED_AS, login);
         return item;
+    }
+    
+    private static class SingletonHolder {
+        private static final JSONcreator INSTANCE = new JSONcreator();
+    }
+    public static JSONcreator getInstance() {
+        return SingletonHolder.INSTANCE;
     }
 
 }
