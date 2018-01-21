@@ -11,10 +11,14 @@ import com.sun.glass.events.MouseEvent;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -43,7 +47,7 @@ public class ClientPaneController {
     private ScrollPane ScrollPaneClient;
 
     @FXML
-    private TextFlow TextFlowClient;
+    private ListView<String> ListFilePane;
 
     public ClientPaneController() {
     }
@@ -64,6 +68,10 @@ public class ClientPaneController {
 
     @FXML
     public void OnClickPobierzSkrot() {
+        TcpClient tcpClient = TcpClient.getInstance();
+
+//        byte[] jsonBytes = tcpClient.createByteJson(filePath, LoginPaneController.loggedAs);
+//        int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
 
     }
 
@@ -76,7 +84,6 @@ public class ClientPaneController {
             Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
             File file = fileChooser.showOpenDialog(stage);
             if (file != null) {
-                //Desktop.getDesktop().open(file);
                 String filePath = file.getAbsolutePath();
                 TcpClient tcpClient = TcpClient.getInstance();
                 byte[] jsonBytes = tcpClient.createByteJson(filePath, LoginPaneController.loggedAs);
@@ -94,21 +101,31 @@ public class ClientPaneController {
             TcpClient tcpClient = TcpClient.getInstance();
             byte[] jsonBytes = tcpClient.createByteJsonList(LoginPaneController.loggedAs);
             int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
-            if(response == 1){
+            if (response == 1) {
                 String list = tcpClient.getListFiles().substring(1,
                         tcpClient.getListFiles().length() - 1);
-                list = list.replaceAll(",", "\n");
-                printText(list);
+                List<String> items = Arrays.asList(list.split("\\s*,\\s*"));
+                addList(items);
+//                printText(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    public void addList(List<String> items) {
+        
+        final ObservableList fileList
+                = ListFilePane.getItems();
+        fileList.clear();
+        fileList.setAll(items);
 
-    public void printText(String string) {
-        Text text1 = new Text(string);
-        Text newline = new Text("\n");
-        TextFlowClient.getChildren().addAll(text1, newline);
     }
+
+    public void printText(String string) {;
+//        Text text1 = new Text(string);
+//        Text newline = new Text("\n");
+//        TextFlowClient.getChildren().addAll(text1, newline);
+    }
+    
 
 }
