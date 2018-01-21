@@ -113,15 +113,15 @@ public class FileServer extends Thread {
                             clientSendingFile = true;
                             break;
                         }
-                        case Properties.FINISHED_SENDING:{
+                        case Properties.FINISHED_SENDING: {
                             System.out.println("Server says :  I received json message \n" + clientMessage.toString());
                             clientSendingFile = false;
                             break;
                         }
-                        case Properties.CLIENT_LIST_MY_FILES:{
+                        case Properties.CLIENT_LIST_MY_FILES: {
                             System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
                             List<String> userFiles = checkUsersFile(clientMessage.getString(Properties.LOGGED_AS));
-                            byte[] json = jSONcreator.createListResponse(Properties.RESPONSE_TYPE,"ACK-to-list",
+                            byte[] json = jSONcreator.createListResponse(Properties.RESPONSE_TYPE, "ACK-to-list",
                                     userFiles.toString()).toString().getBytes();
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
@@ -154,7 +154,7 @@ public class FileServer extends Thread {
                             dos.write(json);
                             break;
                         }
-                        
+
                         default:
                             System.out.println("Server says :  I received json message, but I do not know it : \n" + clientMessage.toString());
                             break;
@@ -246,13 +246,14 @@ public class FileServer extends Thread {
     public List<String> checkUsersFile(String user) {
         List<String> results = new ArrayList<>();
 
-        File[] files = new File("/").listFiles();
+        File[] files = new File(".").listFiles();
         //If this pathname does not denote a directory, then listFiles() returns null. 
 
         for (File file : files) {
             if (file.isFile()) {
-                if(file.getName().startsWith(user));
-                results.add(file.getName());
+                if (file.getName().startsWith(user)) {
+                    results.add(file.getName());
+                }
             }
         }
         return results;

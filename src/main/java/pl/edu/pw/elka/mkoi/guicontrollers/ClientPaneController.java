@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.sun.glass.events.MouseEvent;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -94,7 +95,10 @@ public class ClientPaneController {
             byte[] jsonBytes = tcpClient.createByteJsonList(LoginPaneController.loggedAs);
             int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
             if(response == 1){
-                printText(tcpClient.getListFiles());
+                String list = tcpClient.getListFiles().substring(1,
+                        tcpClient.getListFiles().length() - 1);
+                list = list.replaceAll(",", "\n");
+                printText(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
