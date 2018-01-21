@@ -21,10 +21,12 @@ public class Properties {
     public final static String CLIENT_SEND_FILE = "Send-file";
     public final static String CLIENT_GET_HASH = "Hash-file";
     public final static String CLIENT_LOG_IN_REQUEST = "login-request";
+    public final static String CLIENT_LIST_MY_FILES = "List-files-request";
     //---------------------------------------------------------------
     public final static String MESSAGE_TYPE = "Message-type";
     public final static String RESPONSE_TYPE = "Response-type";
     public final static String MESSAGE_BODY = "Message-Body";
+    public final static String FILES_LIST = "Files-list";
     public final static String FINISHED_SENDING = "Finished-sending";
     public final static String FILE = "File";
     public final static String LOGGED_AS = "Logged-as";

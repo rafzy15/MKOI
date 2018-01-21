@@ -43,13 +43,12 @@ public class TcpClient extends Thread {
     private String filePath = "";
     private String fileName = "";
     private String hash;
+    private String listFiles ="";
     Socket socket = null;
 
     public static void main(String[] args) throws IOException {
         try {
             TcpClient tcpClient = new TcpClient(Properties.CLIENT_SEND_PORT, Properties.CLIENT_RECEIVE_PORT);
-
-//            tcpClient.sendMessages("/home/rafal/Downloads/SzymaniukRafal-KPF-esej(empiryzm w ujęciu Bacona).pdf", tcpClient.sendSocket,Properties.ACTION_REQUEST_TO_GET_FILE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,11 +72,15 @@ public class TcpClient extends Thread {
         return SingletonHolder.INSTANCE;
     }
 
-    public byte[] createByteJson(String filePath,String loggedAs) {
+    public byte[] createByteJson(String filePath, String loggedAs) {
         this.filePath = filePath;
         File f = new File(filePath);
-        fileName = f.getName(); 
+        fileName = f.getName();
         return jSONcreator.clientFileJson(Properties.CLIENT_SEND_FILE, fileName, loggedAs).toString().getBytes();
+    }
+
+    public byte[] createByteJsonList(String loggedAs) {
+        return jSONcreator.clientListJson(Properties.CLIENT_LIST_MY_FILES, loggedAs).toString().getBytes();
     }
 
     public int sendMessages(byte[] jsonRequest, int action) throws Exception {
@@ -89,10 +92,10 @@ public class TcpClient extends Thread {
         if (action == Properties.ACTION_REQUEST_TO_SEND_FILE) {
             requestMessage(dos, jsonRequest);
             return handleResponse(dos);
-        } else if (action == Properties.ACTION_REQUEST_TO_GET_FILE) {
+        } else if (action == Properties.ACTION_LIST_FILES) {
 //            byte[] json = jSONcreator.clientRequestFile(Properties.CLIENT_REQUEST_FILE, "newFile.pdf", "rafal").toString().getBytes();
-//            requestToSendFile(dos, file, json);
-//            handleResponse(file, dos);
+            requestMessage(dos, jsonRequest);
+            return handleResponse(dos);
         } else if (action == Properties.ACTION_REQUEST_TO_HASH_FILE) {
 //            byte[] json = jSONcreator.clientRequestFile(Properties.CLIENT_GET_HASH, "newFile.pdf", "rafal").toString().getBytes();
 //            requestToSendFile(dos, file, json);
@@ -128,11 +131,19 @@ public class TcpClient extends Thread {
                     if (comming.startsWith("{")) {
                         JSONObject jobject = new JSONObject(new String(buffer));
                         if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.RESPONSE_TYPE)) {
-                            if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-to-send")) {
+                            if (jobject.getString(Properties.MESSAGE_BODY).startsWith("ACK-to-login")) {
+                                System.out.println("Client says: ACK to login \n" + jobject);
+                                receivedACK = true;
+                                return 1;
+                            } else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-to-send")) {
                                 System.out.println("Client says: Received ACK," + jobject.toString() + " I'm sending file ");
                                 sendFile(dos, filePath);
                                 return 1;
-                            } else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-TO-GET")) {
+                            } else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-to-list")){
+                                System.out.println("Client says: Received ACK-TO-GET, I'm sending file \n" + jobject);
+                                listFiles = jobject.getString(Properties.FILES_LIST);
+                                return 1;
+                            }else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-TO-GET")) {
                                 System.out.println("Client says: Received ACK-TO-GET, I'm sending file \n" + jobject);
                                 filePath = jobject.getString(Properties.FILE);
                                 return Properties.ACTION_GET_FILE;
@@ -142,10 +153,6 @@ public class TcpClient extends Thread {
                                 hash = jobject.getString(Properties.MESSAGE_BODY).split(":")[1];
                                 System.out.println("Client says : " + hash);
                                 return Properties.ACTION_HASH;
-                            } else if (jobject.getString(Properties.MESSAGE_BODY).startsWith("ACK-to-login")) {
-                                System.out.println("Client says: ACK to login \n" + jobject);
-                                receivedACK = true;
-                                return 1;
                             } else {
                                 System.out.println("Client says: Server did not send ACK" + jobject.toString());
                                 return -1;
@@ -249,5 +256,8 @@ public class TcpClient extends Thread {
 
     private boolean hmacsEquals(byte[] ownHmac, byte[] attachedHmac) {
         return org.bouncycastle.util.Arrays.areEqual(ownHmac, attachedHmac);
+    }
+    public String getListFiles(){
+        return listFiles;
     }
 }

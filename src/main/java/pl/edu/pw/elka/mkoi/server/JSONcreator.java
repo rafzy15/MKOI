@@ -30,6 +30,13 @@ public class JSONcreator {
         item.put(Properties.FILE, "myNew");
         return item;
     }
+    public JSONObject createListResponse(String responseType,String status,String files){
+        JSONObject item = new JSONObject();
+        item.put(Properties.MESSAGE_TYPE, responseType);
+        item.put(Properties.MESSAGE_BODY, status);
+        item.put(Properties.FILES_LIST, files);
+        return item;
+    }
     public JSONObject clientFileJson(String request,String file,String login){
         JSONObject item = new JSONObject();
         item.put(Properties.MESSAGE_TYPE, request);
@@ -37,7 +44,12 @@ public class JSONcreator {
         item.put(Properties.LOGGED_AS, login);
         return item;
     }
-    
+    public JSONObject clientListJson(String request,String login){
+        JSONObject item = new JSONObject();
+        item.put(Properties.MESSAGE_TYPE, request);
+        item.put(Properties.LOGGED_AS, login);
+        return item;
+    }
     private static class SingletonHolder {
         private static final JSONcreator INSTANCE = new JSONcreator();
     }

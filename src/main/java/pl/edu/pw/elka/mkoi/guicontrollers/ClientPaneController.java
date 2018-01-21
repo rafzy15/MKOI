@@ -24,7 +24,7 @@ import pl.edu.pw.elka.mkoi.server.JSONcreator;
 import pl.edu.pw.elka.mkoi.server.Properties;
 import pl.edu.pw.elka.mkoi.server.TcpClient;
 
-public class ClientPaneController{
+public class ClientPaneController {
 
     @FXML
     private Button PrzekazPlikKlient;
@@ -46,6 +46,7 @@ public class ClientPaneController{
 
     public ClientPaneController() {
     }
+
     @FXML
     public void OnClickPobierzPlikKlient() throws IOException {
         FileChooser fileChooser = new FileChooser();
@@ -88,16 +89,15 @@ public class ClientPaneController{
 
     @FXML
     void OnClickSprawdzSerwerKlient() {
-        List<String> results = new ArrayList<String>();
-
-        File[] files = new File("C:\\Users\\Kamil\\Documents\\Gitara Blanka\\Kolędy").listFiles();
-        //If this pathname does not denote a directory, then listFiles() returns null. 
-
-        for (File file : files) {
-            if (file.isFile()) {
-                results.add(file.getName());
-                printText(file.getName());
+        try {
+            TcpClient tcpClient = TcpClient.getInstance();
+            byte[] jsonBytes = tcpClient.createByteJsonList(LoginPaneController.loggedAs);
+            int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+            if(response == 1){
+                printText(tcpClient.getListFiles());
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

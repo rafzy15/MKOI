@@ -17,6 +17,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import org.bouncycastle.jcajce.provider.digest.BCMessageDigest;
@@ -75,9 +77,27 @@ public class FileServer extends Thread {
             if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                 String comming = new String(buffer);
                 comming = comming.trim();
-                if (comming.startsWith("{") && comming.endsWith("}") ) {
+                if (comming.startsWith("{") && comming.endsWith("}")) {
                     JSONObject clientMessage = new JSONObject(new String(buffer));
                     switch (clientMessage.getString(Properties.MESSAGE_TYPE)) {
+                        case Properties.CLIENT_LOG_IN_REQUEST: {
+                            System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
+                            byte[] buffer1 = new byte[4096];
+                            byte[] json = null;
+                            if (verifyUser(clientMessage.getString("Login"), clientMessage.getString("Password"))) {
+                                json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
+                                        "ACK-to-login").toString().getBytes();
+
+                            } else {
+                                json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
+                                        "Not allowed to log in").toString().getBytes();
+                            }
+                            buffer1 = fillArray(buffer1, json);
+                            dos.write(buffer1);
+                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            dos.write(ownGeneratedMacSend);
+                            break;
+                        }
                         case Properties.CLIENT_SEND_FILE: {
                             System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
                             byte[] json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
@@ -89,14 +109,27 @@ public class FileServer extends Thread {
                             dos.write(ownGeneratedMacSend);
                             String fileName = clientMessage.getString(Properties.FILE);
                             String login = clientMessage.getString(Properties.LOGGED_AS);
-                            fos = new FileOutputStream(login+fileName);
+                            fos = new FileOutputStream(login + fileName);
                             clientSendingFile = true;
                             break;
                         }
-                        case Properties.FINISHED_SENDING:
+                        case Properties.FINISHED_SENDING:{
                             System.out.println("Server says :  I received json message \n" + clientMessage.toString());
                             clientSendingFile = false;
                             break;
+                        }
+                        case Properties.CLIENT_LIST_MY_FILES:{
+                            System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
+                            List<String> userFiles = checkUsersFile(clientMessage.getString(Properties.LOGGED_AS));
+                            byte[] json = jSONcreator.createListResponse(Properties.RESPONSE_TYPE,"ACK-to-list",
+                                    userFiles.toString()).toString().getBytes();
+                            byte[] buffer1 = new byte[4096];
+                            buffer1 = fillArray(buffer1, json);
+                            dos.write(buffer1);
+                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            dos.write(ownGeneratedMacSend);
+                            break;
+                        }
                         case Properties.CLIENT_REQUEST_FILE: {
                             transmitingFileAction = Properties.ACTION_GET_FILE;
                             clientMessage.get(Properties.FILE);
@@ -121,24 +154,7 @@ public class FileServer extends Thread {
                             dos.write(json);
                             break;
                         }
-                        case Properties.CLIENT_LOG_IN_REQUEST: {
-                            System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
-                            byte[] buffer1 = new byte[4096];
-                            byte[] json =null;
-                            if (verifyUser(clientMessage.getString("Login"), clientMessage.getString("Password"))) {
-                                json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
-                                        "ACK-to-login").toString().getBytes();
-                               
-                            }else{
-                                json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
-                                        "Not allowed to log in").toString().getBytes();
-                            }
-                             buffer1 = fillArray(buffer1, json);
-                            dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
-                            dos.write(ownGeneratedMacSend);
-                            break;
-                        }
+                        
                         default:
                             System.out.println("Server says :  I received json message, but I do not know it : \n" + clientMessage.toString());
                             break;
@@ -225,6 +241,20 @@ public class FileServer extends Thread {
         }
 
         return ifUsrPassCorrect;
+    }
 
+    public List<String> checkUsersFile(String user) {
+        List<String> results = new ArrayList<>();
+
+        File[] files = new File("/").listFiles();
+        //If this pathname does not denote a directory, then listFiles() returns null. 
+
+        for (File file : files) {
+            if (file.isFile()) {
+                if(file.getName().startsWith(user));
+                results.add(file.getName());
+            }
+        }
+        return results;
     }
 }
