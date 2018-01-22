@@ -1,0 +1,10 @@
+CA says : received HMAC 4002c1753e67b28bcafa73660364f33b84b9635515fa3fcd429833c6e6e03c1bde0488fa9161dd0208a8220e648077ef7023948070cb5577bd94abe84f142352
+CA says : generated winnnowed HMAC 71fdaaabc62cd8537b5b52949e7699d8851ececca6795c1fe70c727f4651cf30ae551bcbd69b130c4fe8561235de5ae6999d00318ec4ea77b0256e2e6f9237e8
+Client says: ACK to login 
+{"Message-type":"Response-type","Message-Body":"ACK-to-login"}
+CA says : received HMAC e29367224589eb1c0198097a468ba5d73a68fc5189703f449e476ad6a5d19560616e8991dff88835a375dd8e29d69d8a533e6e18534bca5aa891a413ffdf9c2a
+Client says : wrong HMAC 53a69d9445bc1f09a590a162dc9e4f3e447750fe00713f0769b389bb066b82cb77790c5bcc43db107e53889a8c621f5475d4d8617090e0b111265236b5edc403
+CA says : generated winnnowed HMAC d3b420f1aaab5c2f2364d0e218a797713078819060d23832947a3b6cd8ad5098c7e4848a53a18f6e3595dcc74005eb2d0ff8a172c906899dd367bb277ff7a594
+Client says : wrong HMAC da26dae38ff74b72a6d518a270a2b4507cf6d1582f82f59bc0608359aa3371a7f5239c056e350afeadab4081a37c3be8c317c047fd15dbc25a9dff0c47158258
+Client says: Received ACK-to-list, 
+{"Files-list":"[kamilb299a6ae5c53efe4d410be51b1bf43c3.jpg, kamilUntitled Diagram.xml, kamilSzymaniukRaport.pdf, kamilInni uzytkownicy.txt, kamilpom1244.pdf]","Message-type":"Response-type","Message-Body":"ACK-to-list"}

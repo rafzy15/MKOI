@@ -19,10 +19,10 @@
                         <Font size="34.0" />
                     </font>
                 </Label>
-                <Button fx:id="PrzekazPlikKlient" layoutX="55.0" layoutY="125.0" mnemonicParsing="false" onMouseClicked="#OnClickPrzekazPlikKlient" text="Przekaż plik" />
-                <Button fx:id="PobierzPlikKlient" layoutX="55.0" layoutY="175.0" mnemonicParsing="false" onMouseClicked="#OnClickPobierzPlikKlient" text="Pobierz plik z serwera" />
+                <Button fx:id="PrzekazPlikKlient"  layoutX="55.0" layoutY="125.0" mnemonicParsing="false" onMouseClicked="#OnClickPrzekazPlikKlient" text="Przekaż plik" />
+                <Button fx:id="PobierzPlikKlient" disable="true" layoutX="55.0" layoutY="175.0" mnemonicParsing="false" onMouseClicked="#OnClickPobierzPlikKlient" text="Pobierz plik z serwera" />
                 <Button fx:id="SprawdzSerwerKlient" layoutX="55.0" layoutY="224.0" mnemonicParsing="false" onMouseClicked="#OnClickSprawdzSerwerKlient" text="Sprawdź zawartość serwera" />
-                <Button fx:id="PobierzSkrot" layoutX="55.0" layoutY="269.0" mnemonicParsing="false" onMouseClicked="#OnClickPobierzSkrot" text="Pobierz skrót pliku z serwera" />
+                <Button fx:id="PobierzSkrot" disable="true" layoutX="55.0" layoutY="269.0" mnemonicParsing="false" onMouseClicked="#OnClickPobierzSkrot" text="Pobierz skrót pliku z serwera" />
                 <ScrollPane fx:id="ScrollPaneClient" layoutX="266.0" layoutY="100.0" prefHeight="273.0" prefWidth="324.0">
                     <content>
                         <ListView fx:id="ListFilePane"/>

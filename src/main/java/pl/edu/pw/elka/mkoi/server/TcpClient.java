@@ -89,10 +89,10 @@ public class TcpClient extends Thread {
     public byte[] createByteJsonList(String loggedAs) {
         return jSONcreator.clientListJson(Properties.CLIENT_LIST_MY_FILES, loggedAs).toString().getBytes();
     }
-    public byte[] createHashMessage( String fileName, String loggedAs) {
-        return jSONcreator.createHashRequest(Properties.CLIENT_GET_HASH, fileName, loggedAs ).toString().getBytes();
-    }
 
+    public byte[] createHashMessage(String fileName, String loggedAs) {
+        return jSONcreator.createHashRequest(Properties.CLIENT_GET_HASH, fileName, loggedAs).toString().getBytes();
+    }
 
     public int sendMessages(byte[] jsonRequest) throws Exception {
         DataOutputStream dos = new DataOutputStream(sendSocket.getOutputStream());
@@ -123,7 +123,7 @@ public class TcpClient extends Thread {
                         JSONObject jobject = new JSONObject(new String(buffer));
                         if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.RESPONSE_TYPE)) {
                             switch (jobject.getString(Properties.MESSAGE_BODY)) {
-                                
+
                                 case "ACK-to-login":
                                     System.out.println("Client says: ACK to login \n" + jobject);
                                     return 1;
@@ -155,7 +155,7 @@ public class TcpClient extends Thread {
                             System.out.println("Client says : Finish message, I received json message \n" + jobject.toString());
                             serverSendingFile = false;
                             return 1;
-                        } else{
+                        } else {
                             System.out.println("Client says : something went wrong");
                             return -1;
                         }
@@ -253,7 +253,18 @@ public class TcpClient extends Thread {
         return org.bouncycastle.util.Arrays.areEqual(ownHmac, attachedHmac);
     }
 
+    public String computeHash(File localFile) throws IOException {
+        byte[] bytesFile = Files.readAllBytes(localFile.toPath());
+        BCMessageDigest SHA3 = new SHA3.Digest512();
+        byte[] ownGeneratedSHA = SHA3.digest(bytesFile);
+        return Hex.toHexString(ownGeneratedSHA);
+    }
+
     public String getListFiles() {
         return listFiles;
+    }
+
+    public String getHash() {
+        return hash;
     }
 }

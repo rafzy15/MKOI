@@ -1,0 +1,22 @@
+Server says :  I received (HMAC OK) 
+{"Message-type":"login-request","Login":"kamil","Password":"kamil"}
+CA says : generated winnnowed HMAC b243a84d4809f33bbc7d9c60c61333ab80b1385277a2ca0507a11b4e15eccd3313c4547a2f343747bda3a9ee473c57f3141e1fd2704e38ad247d0e7a8d740ec1
+CA says : received HMAC b647e4e8ac7a22298c2b31fb75786bf4144ffb733098c963198ffb19bf2ae190c79e7db3913b4106a4e746e1622f60b59e97d631ad46f2a7699d9098531ae8d9
+Server says : Wrong MAC not reading 8c0cc8e42eef3bfb5a114885997be510d2b0a41b0811284bb44014959a91ab2dbace940a377b31805f0848f859725022725024f867085e130b926c2f0cf80058
+Server says :  I received (HMAC OK) 
+{"Message-type":"List-files-request","Logged-as":"kamil"}
+Server says : Wrong MAC not reading 620cac08318f97ce8edb7fee3b401cbd1becb72085f0d7d5df14c46475cf48a0410374f5003983482a50a2977c19269723cb082df921b80650916707c9d6f5c5
+CA says : generated winnnowed HMAC 5e5f0e281e893ee04b6006182b53d01222b70fafe97eca26db92f5b097e79f908923ca682d3300f543c53ef597223374a63fc0968f48772c230f4db2f073b01b
+CA says : received HMAC 2135531195983568622d36046ed4a886c68a53095cdec9769798fec9a15e46c499efa15a546a3472abc08a0a4f516fc9ed4a67bb8d7dec3cac0fc20b84076361
+Server says : Wrong MAC not reading ba86324845f909c0b85352054e8ce4852da3620add4629f623c8eb760890021c10fe34481d8040edbf1679990111e5b675a79e61ca75f158c2deb6f7639fe0a4
+Server says :  I received (HMAC OK) 
+{"Message-type":"Hash-file","Logged-as":"kamil","File":"SzymaniukRaport.pdf"}
+4096
+CA says : generated winnnowed HMAC 12223b8e63b8706f8ac107a61f3d0f0b2f55988c17ccfbe97df67fe7b560e5ab632781d4f1b222f2a98a9886652757f2677be86b3ffe777d64508554f62a88b2
+CA says : received HMAC c00ee6878c7b6d77c77c8a7d00a467a0dcfb5cee364f77bdf3d52d9f675558b45e39ad3c2a339ef99800f72e434217924f6b3693fa65bd11afad712355943cda
+Server says : Wrong MAC not reading 9314d159ca5a9d7aee2ad7c95d830f37b713391be39fa10a981fe3d916ae42f9d717ec4be8c8e5e01a1dca776eaf715484af47dc7b65760b0eff79a500370776
+Server says :  I received (HMAC OK) 
+{"Message-type":"Hash-file","Logged-as":"kamil","File":"b299a6ae5c53efe4d410be51b1bf43c3.jpg"}
+4096
+CA says : received HMAC 1ac7672897a572ca7e6edea337dd152017d5b8cc928cfa4c1611d1c270ecde016a18336d161df18a72962d6867b2e33ae442bff49c373c604f9ef254c6260906
+CA says : generated winnnowed HMAC fa5b6c7f3d8f057b42b2d66d741c77ae247429e7f402e23a5ba7d5800b133759385a7e5e999b6db5f38195cb23f8e9dae9623b074144e7be95a36dd197e1f30e
