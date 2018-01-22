@@ -30,10 +30,7 @@ public class ServerPaneController {
 
     @FXML
     private TextArea textArea;
-    @FXML
-    private TextFlow TextFlowField;
-    @FXML
-    private ScrollPane ScrollPaneField;
+   
     // @FXML
     //private Button WyswietlLogi;
 
@@ -51,13 +48,8 @@ public class ServerPaneController {
             newUserstage.setScene(scene);
 
             newUserstage.setTitle("Utworz nowe konto uzytkownika");
-            newUserstage.show();
-            printText("Otwarty zostal panel administratora");
-            //readLogs();
-            //editFile();
-            //newUserstage.setOnCloseRequest(e -> Platform.exit());
-            //Stage stage = (Stage) ServerNoweKontoUzytkownika.getScene().getWindow();
-            //stage.close();
+            newUserstage.show();            
+           
 
         } catch (Exception e) {
             System.out.println("Nie mozna otworzyc nowego okna");
@@ -86,11 +78,11 @@ public class ServerPaneController {
 			
 		}
     }*/
-    public void printText(String string) {
+   /* public void printText(String string) {
         Text text1 = new Text(string);
         Text newline = new Text("\n");
         TextFlowField.getChildren().addAll(text1, newline);
-    }
+    }*/
 
     /*PrintStream outStream = new PrintStream( new TextAreaOutputStream(TextArea1));
 
