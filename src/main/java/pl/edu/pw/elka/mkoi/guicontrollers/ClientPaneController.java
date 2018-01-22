@@ -22,6 +22,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.edu.pw.elka.mkoi.server.ChaffAgent;
@@ -53,26 +54,33 @@ public class ClientPaneController {
     }
 
     @FXML
-    public void OnClickPobierzPlikKlient() throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Otworz plik");
-        //fileChooser.showOpenDialog(PobierzPlikKlient.getParentPopup().getScene().getWindow());
+    public void OnClickPobierzPlikKlient() throws Exception {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Wybierz ścieżkę");
         Stage stage = (Stage) PobierzPlikKlient.getScene().getWindow();
-        File file = fileChooser.showOpenDialog(stage);
+        File file = directoryChooser.showDialog(stage);
         if (file != null) {
-            //Desktop.getDesktop().open(file);
             String filePath = file.getAbsolutePath();
+            String fileName = ListFilePane.getSelectionModel().getSelectedItem().trim();
+            fileName = fileName.replace(LoginPaneController.loggedAs, "");
+            System.out.println(filePath + fileName);
+            TcpClient tcpClient = TcpClient.getInstance();
+            byte[] jsonBytes = tcpClient.createGetByteJson(filePath,fileName, LoginPaneController.loggedAs);
+            int response = tcpClient.sendMessages(jsonBytes);
         }
 
     }
 
     @FXML
-    public void OnClickPobierzSkrot() {
+    public void OnClickPobierzSkrot() throws Exception{
         TcpClient tcpClient = TcpClient.getInstance();
-
-//        byte[] jsonBytes = tcpClient.createByteJson(filePath, LoginPaneController.loggedAs);
-//        int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
-
+        
+        String fileName = ListFilePane.getSelectionModel().getSelectedItem().trim();
+        if(fileName != null || !fileName.isEmpty()){
+            fileName = fileName.replace(LoginPaneController.loggedAs, "");
+            byte[] jsonBytes = tcpClient.createHashMessage(fileName ,LoginPaneController.loggedAs);
+            int response = tcpClient.sendMessages(jsonBytes);
+        }
     }
 
     @FXML
@@ -86,8 +94,8 @@ public class ClientPaneController {
             if (file != null) {
                 String filePath = file.getAbsolutePath();
                 TcpClient tcpClient = TcpClient.getInstance();
-                byte[] jsonBytes = tcpClient.createByteJson(filePath, LoginPaneController.loggedAs);
-                int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+                byte[] jsonBytes = tcpClient.createSendByteJson(filePath, LoginPaneController.loggedAs);
+                int response = tcpClient.sendMessages(jsonBytes);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,32 +108,24 @@ public class ClientPaneController {
         try {
             TcpClient tcpClient = TcpClient.getInstance();
             byte[] jsonBytes = tcpClient.createByteJsonList(LoginPaneController.loggedAs);
-            int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+            int response = tcpClient.sendMessages(jsonBytes);
             if (response == 1) {
                 String list = tcpClient.getListFiles().substring(1,
                         tcpClient.getListFiles().length() - 1);
                 List<String> items = Arrays.asList(list.split("\\s*,\\s*"));
-                addList(items);
+                addToList(items);
 //                printText(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public void addList(List<String> items) {
-        
+
+    public void addToList(List<String> items) {
         final ObservableList fileList
                 = ListFilePane.getItems();
         fileList.clear();
         fileList.setAll(items);
-
     }
-
-    public void printText(String string) {;
-//        Text text1 = new Text(string);
-//        Text newline = new Text("\n");
-//        TextFlowClient.getChildren().addAll(text1, newline);
-    }
-    
 
 }

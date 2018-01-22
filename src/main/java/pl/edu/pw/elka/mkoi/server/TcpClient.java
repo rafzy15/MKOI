@@ -40,11 +40,12 @@ public class TcpClient extends Thread {
     private HMAC hmac = new HMAC();
     private JSONcreator jSONcreator = JSONcreator.getInstance();
     private String user = "rafal";
+    private boolean serverSendingFile = false;
     private String filePath = "";
     private String fileName = "";
     private String hash;
-    private String listFiles ="";
-    Socket socket = null;
+    private String listFiles = "";
+    private Socket socket = null;
 
     public static void main(String[] args) throws IOException {
         try {
@@ -72,51 +73,40 @@ public class TcpClient extends Thread {
         return SingletonHolder.INSTANCE;
     }
 
-    public byte[] createByteJson(String filePath, String loggedAs) {
+    public byte[] createSendByteJson(String filePath, String loggedAs) {
         this.filePath = filePath;
         File f = new File(filePath);
         fileName = f.getName();
         return jSONcreator.clientFileJson(Properties.CLIENT_SEND_FILE, fileName, loggedAs).toString().getBytes();
     }
 
+    public byte[] createGetByteJson(String filePath, String fileName, String loggedAs) {
+        this.filePath = filePath;
+        this.fileName = fileName;
+        return jSONcreator.clientFileJson(Properties.CLIENT_GET_FILE, fileName, loggedAs).toString().getBytes();
+    }
+
     public byte[] createByteJsonList(String loggedAs) {
         return jSONcreator.clientListJson(Properties.CLIENT_LIST_MY_FILES, loggedAs).toString().getBytes();
     }
+    public byte[] createHashMessage( String fileName, String loggedAs) {
+        return jSONcreator.createHashRequest(Properties.CLIENT_GET_HASH, fileName, loggedAs ).toString().getBytes();
+    }
 
-    public int sendMessages(byte[] jsonRequest, int action) throws Exception {
 
+    public int sendMessages(byte[] jsonRequest) throws Exception {
         DataOutputStream dos = new DataOutputStream(sendSocket.getOutputStream());
         DataInputStream dis = new DataInputStream(sendSocket.getInputStream());
 
-        //TODO Make it depandable on button click
-        if (action == Properties.ACTION_REQUEST_TO_SEND_FILE) {
-            requestMessage(dos, jsonRequest);
-            return handleResponse(dos);
-        } else if (action == Properties.ACTION_LIST_FILES) {
-//            byte[] json = jSONcreator.clientRequestFile(Properties.CLIENT_REQUEST_FILE, "newFile.pdf", "rafal").toString().getBytes();
-            requestMessage(dos, jsonRequest);
-            return handleResponse(dos);
-        } else if (action == Properties.ACTION_REQUEST_TO_HASH_FILE) {
-//            byte[] json = jSONcreator.clientRequestFile(Properties.CLIENT_GET_HASH, "newFile.pdf", "rafal").toString().getBytes();
-//            requestToSendFile(dos, file, json);
-//            handleResponse(file, dos);
-        }
-        if (action == Properties.ACTION_LOG_IN) {
-//            byte[] json = jSONcreator.clientRequestFile(Properties.CLIENT_REQUEST_FILE, "newFile.pdf", "rafal").toString().getBytes();
-            requestMessage(dos, jsonRequest);
-            return handleResponse(dos);
+        requestMessage(dos, jsonRequest);
+        return handleResponse(dos);
 
-        }
-//        dos.close();
-        return -1;
     }
 
     private int handleResponse(DataOutputStream dos) throws IOException {
         byte[] buffer = new byte[4096];
         byte[] hmacAttached = new byte[64];
-        boolean receivedACK = false;
-        long startTime = System.currentTimeMillis();
-        long elapsedTime = 0L;
+        FileOutputStream fos = null;
         if (socket == null) {
             socket = serverSocket.accept();
         }
@@ -128,40 +118,52 @@ public class TcpClient extends Thread {
                 dis.read(hmacAttached, 0, hmacAttached.length);
                 if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                     String comming = new String(buffer);
-                    if (comming.startsWith("{")) {
+                    comming = comming.trim();
+                    System.out.println(comming);
+                    if (comming.startsWith("{") && comming.endsWith("}")) {
                         JSONObject jobject = new JSONObject(new String(buffer));
                         if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.RESPONSE_TYPE)) {
-                            if (jobject.getString(Properties.MESSAGE_BODY).startsWith("ACK-to-login")) {
-                                System.out.println("Client says: ACK to login \n" + jobject);
-                                receivedACK = true;
-                                return 1;
-                            } else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-to-send")) {
-                                System.out.println("Client says: Received ACK," + jobject.toString() + " I'm sending file ");
-                                sendFile(dos, filePath);
-                                return 1;
-                            } else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-to-list")){
-                                System.out.println("Client says: Received ACK-TO-GET, I'm sending file \n" + jobject);
-                                listFiles = jobject.getString(Properties.FILES_LIST);
-                                return 1;
-                            }else if (jobject.getString(Properties.MESSAGE_BODY).equals("ACK-TO-GET")) {
-                                System.out.println("Client says: Received ACK-TO-GET, I'm sending file \n" + jobject);
-                                filePath = jobject.getString(Properties.FILE);
-                                return Properties.ACTION_GET_FILE;
-                            } else if (jobject.getString(Properties.MESSAGE_BODY).startsWith("ACK-HASH")) {
-                                System.out.println("Client says: Received ACK-HASH \n" + jobject);
-                                filePath = jobject.getString(Properties.FILE);
-                                hash = jobject.getString(Properties.MESSAGE_BODY).split(":")[1];
-                                System.out.println("Client says : " + hash);
-                                return Properties.ACTION_HASH;
-                            } else {
-                                System.out.println("Client says: Server did not send ACK" + jobject.toString());
-                                return -1;
+                            switch (jobject.getString(Properties.MESSAGE_BODY)) {
+                                
+                                case "ACK-to-login":
+                                    System.out.println("Client says: ACK to login \n" + jobject);
+                                    return 1;
+                                case "ACK-to-send":
+                                    System.out.println("Client says: Received ACK," + jobject.toString() + " I'm sending file ");
+                                    sendFile(dos, filePath);
+                                    return 1;
+                                case "ACK-to-list":
+                                    System.out.println("Client says: Received ACK-to-list, \n" + jobject);
+                                    listFiles = jobject.getString(Properties.FILES_LIST);
+                                    return 1;
+                                case "ACK-to-get":
+                                    System.out.println("Client says: Received ACK-to-get, I'm saving file \n" + jobject);
+                                    serverSendingFile = true;
+                                    System.out.println(serverSendingFile);
+                                    fos = new FileOutputStream(filePath + "/" + fileName);
+                                    break;
+                                case "ACK-hash":
+                                    System.out.println("Client says: Received ACK-HASH \n" + jobject);
+                                    filePath = jobject.getString(Properties.HASH_FILE);
+                                    hash = jobject.getString(Properties.HASH_FILE);
+                                    System.out.println("Client says : " + hash);
+                                    return 1;
+                                default:
+                                    System.out.println("Client says: Server did not send ACK" + jobject.toString());
+                                    return -1;
                             }
+                        } else if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.FINISHED_SENDING)) {
+                            System.out.println("Client says : Finish message, I received json message \n" + jobject.toString());
+                            serverSendingFile = false;
+                            return 1;
+                        } else{
+                            System.out.println("Client says : something went wrong");
+                            return -1;
                         }
-                    } else {
-
+                    } else if (serverSendingFile) {
+                        System.out.println("Client says : client saving file, HMAC OK " + Hex.toHexString(ownGeneratedMac));
+                        fos.write(buffer, 0, buffer.length);
                     }
-
                 } else {
                     System.out.println("Client says : wrong HMAC " + Hex.toHexString(ownGeneratedMac));
                 }
@@ -234,30 +236,25 @@ public class TcpClient extends Thread {
         return false;
     }
 
-    private void saveFile(Socket acceptSocket, String file) throws Exception {
-        FileOutputStream fos = new FileOutputStream(file + "client" + ".pdf");
-        byte[] buffer = new byte[4096];
-        byte[] hmacAttached = new byte[64];;
-        DataInputStream dis = new DataInputStream(acceptSocket.getInputStream());
-        while (dis.read(buffer, 0, buffer.length) != -1) {
-            byte[] ownGeneratedMac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
-            dis.read(hmacAttached, 0, hmacAttached.length);
-            if (hmacsEquals(ownGeneratedMac, hmacAttached)) {
-                System.out.println("Client says : HMAC ok " + Hex.toHexString(ownGeneratedMac));
-                fos.write(buffer);
-            } else {
-                System.out.println("Client says : Wrong HMAC " + Hex.toHexString(ownGeneratedMac));
-
-            }
-        }
-        System.out.println("Client says : Finished saving");
-        dis.close();
+    private void sendFinishMessage(DataOutputStream dos) throws Exception {
+        byte[] buffer1 = new byte[4096];
+        byte[] json = jSONcreator.createGeneralMessage(Properties.FINISHED_SENDING, "OK").
+                toString().getBytes();
+        System.out.println(new JSONObject(new String(json)));
+        buffer1 = fillArray(buffer1, json);
+        byte[] mac = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+        dos.write(buffer1);
+        dos.write(mac);
+        System.out.println("Client says : sending ACK with MAC = "
+                + Hex.toHexString(mac));
+        System.out.println("Client says : I finished sending file");
     }
 
     private boolean hmacsEquals(byte[] ownHmac, byte[] attachedHmac) {
         return org.bouncycastle.util.Arrays.areEqual(ownHmac, attachedHmac);
     }
-    public String getListFiles(){
+
+    public String getListFiles() {
         return listFiles;
     }
 }

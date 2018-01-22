@@ -17,7 +17,7 @@ public class Properties {
     public final static int CLIENT_RECEIVE_PORT = 1991;
     public final static int ADDITIONAL_CHAF_PER_BUFFER = 1;
 
-    public final static String CLIENT_REQUEST_FILE = "Request-file";
+    public final static String CLIENT_GET_FILE = "Request-file";
     public final static String CLIENT_SEND_FILE = "Send-file";
     public final static String CLIENT_GET_HASH = "Hash-file";
     public final static String CLIENT_LOG_IN_REQUEST = "login-request";
@@ -29,19 +29,22 @@ public class Properties {
     public final static String FILES_LIST = "Files-list";
     public final static String FINISHED_SENDING = "Finished-sending";
     public final static String FILE = "File";
+    public final static String HASH_FILE="Hash-file";
     public final static String LOGGED_AS = "Logged-as";
 
     //-------------------------------------------
-    public final static int ACTION_SEND_FILE = 1;
-    public final static int ACTION_GET_FILE = 2;
-    public final static int ACTION_LIST_FILES = 3;
-    public final static int ACTION_HASH = 4;
-    public final static int ACTION_LOG_IN = 5;
+//    public final static int ACTION_SEND_FILE = 1;
+//    public final static int ACTION_GET_FILE = 2;
+//    public final static int ACTION_LIST_FILES = 3;
+//    public final static int ACTION_HASH = 4;
+//    public final static int ACTION_LOG_IN = 6;
     //--------------------------------------------
     public final static int ACTION_REQUEST_TO_SEND_FILE = 5;
     public final static int ACTION_REQUEST_TO_GET_FILE = 6;
     public final static int ACTION_REQUEST_TO_LIST_FILES = 7;
     public final static int ACTION_REQUEST_TO_HASH_FILE = 8;
+    public final static int ACTION_REQUEST_TO_LOG = 8;
+    
 
     //--------------------------------------------
     public final static String ACK = "ACK";

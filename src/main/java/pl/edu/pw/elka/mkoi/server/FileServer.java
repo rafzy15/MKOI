@@ -130,28 +130,38 @@ public class FileServer extends Thread {
                             dos.write(ownGeneratedMacSend);
                             break;
                         }
-                        case Properties.CLIENT_REQUEST_FILE: {
-                            transmitingFileAction = Properties.ACTION_GET_FILE;
-                            clientMessage.get(Properties.FILE);
-                            login = clientMessage.getString("login");
+                        case Properties.CLIENT_GET_FILE: {
+                            System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
+                            login = clientMessage.getString(Properties.LOGGED_AS);
+                            String fileName = login + clientMessage.getString(Properties.FILE).trim();
                             byte[] json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
-                                    "ACK-TO-GET").toString().getBytes();
+                                    "ACK-to-get").toString().getBytes();
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
                             dos.write(buffer1);
                             byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
-                            sendFile(dos, "newFile.pdf");
+                            sendFile(dos, fileName);
                             break;
                         }
                         case Properties.CLIENT_GET_HASH: {
-                            Path path = Paths.get("newFile.pdf");
+                            System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
+                            login = clientMessage.getString(Properties.LOGGED_AS);
+                            String fileName = login + clientMessage.getString(Properties.FILE).trim();
+                            Path path = Paths.get(fileName);
                             byte[] bytesFile = Files.readAllBytes(path);
                             BCMessageDigest SHA3 = new SHA3.Digest512();
                             byte[] ownGeneratedSHA = SHA3.digest(bytesFile);
-                            byte[] json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
-                                    "ACK-HASH:" + ownGeneratedSHA).toString().getBytes();
-                            dos.write(json);
+                            
+                            byte[] json = jSONcreator.createHashResponse(Properties.RESPONSE_TYPE,
+                                    "ACK-hash",Hex.toHexString(ownGeneratedSHA)).toString().getBytes();
+                            byte[] buffer1 = new byte[4096];
+                            buffer1 = fillArray(buffer1, json);
+                            System.out.println(buffer1.length);
+                            dos.write(buffer1);
+                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            dos.write(ownGeneratedMacSend);
+
                             break;
                         }
 

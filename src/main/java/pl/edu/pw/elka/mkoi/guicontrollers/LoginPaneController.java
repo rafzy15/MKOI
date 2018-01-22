@@ -52,7 +52,7 @@ public class LoginPaneController implements Initializable {
     public void onClickZalogujButton() throws Exception {
         byte[] jsonBytes = jSONcreator.createLoginMessage(LoginUserField.getText(), LoginPasswordField.getText()).
                 toString().getBytes();
-        int response = tcpClient.sendMessages(jsonBytes, Properties.ACTION_LOG_IN);
+        int response = tcpClient.sendMessages(jsonBytes);
         if (response != 1) {
             showFailureWindow();
         } else {
