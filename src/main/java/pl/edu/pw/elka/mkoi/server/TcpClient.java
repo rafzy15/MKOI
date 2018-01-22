@@ -119,7 +119,6 @@ public class TcpClient extends Thread {
                 if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                     String comming = new String(buffer);
                     comming = comming.trim();
-                    System.out.println(comming);
                     if (comming.startsWith("{") && comming.endsWith("}")) {
                         JSONObject jobject = new JSONObject(new String(buffer));
                         if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.RESPONSE_TYPE)) {

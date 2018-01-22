@@ -65,7 +65,6 @@ public class ChaffAgent extends Thread {
         byte[] hmacAttached = new byte[64];
         int read = 0;
         while ((read = dis.read(buffer, 0, buffer.length)) != -1) {
-            System.out.println(read);
             initializeSocket();
             if (dos == null) {
                 dos = new DataOutputStream(toSendSocket.getOutputStream());

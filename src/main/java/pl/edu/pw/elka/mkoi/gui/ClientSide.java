@@ -1,5 +1,7 @@
 package pl.edu.pw.elka.mkoi.gui;
 
+import java.io.File;
+import java.io.PrintStream;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +17,11 @@ public class ClientSide extends Application {
     private StackPane stackPane = null;
 
     public static void main(String[] args) {
+        try {
+            System.setOut(new PrintStream(new File("clientLog.txt")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         launch(args);
 
     }

@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -153,9 +154,9 @@ public class FileServer extends Thread {
                             byte[] bytesFile = Files.readAllBytes(path);
                             BCMessageDigest SHA3 = new SHA3.Digest512();
                             byte[] ownGeneratedSHA = SHA3.digest(bytesFile);
-                            
+
                             byte[] json = jSONcreator.createHashResponse(Properties.RESPONSE_TYPE,
-                                    "ACK-hash",Hex.toHexString(ownGeneratedSHA)).toString().getBytes();
+                                    "ACK-hash", Hex.toHexString(ownGeneratedSHA)).toString().getBytes();
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
                             System.out.println(buffer1.length);
@@ -190,7 +191,11 @@ public class FileServer extends Thread {
     }
 
     public static void main(String[] args) {
-
+        try {
+            System.setOut(new PrintStream(new File("serverLog.txt")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ChaffAgent responseSecure = new ChaffAgent(Properties.SERVER_SEND_PORT, Properties.CLIENT_RECEIVE_PORT);
         responseSecure.start();
 //        ChaffAgent ca = new ChaffAgent(Properties.CLIENT_SEND_PORT, Properties.SERVER_RECEIVE_PORT);
@@ -269,22 +274,19 @@ public class FileServer extends Thread {
         }
         return results;
     }
-    
-    public String ReadUserKey(String UserName) throws FileNotFoundException
-    {
-    	Scanner input = new Scanner(new File("klucze_server.txt")); 
 
-		while(input.hasNext())
-		{ 
-		String usr = input.next(); 
-		String pass = input.next(); 
-		
-			if(usr.equals(UserName))
-			{
-				ClientPublicKey = pass;
-				break;
-			}			
-		}		
-		return ClientPublicKey;
+    public String ReadUserKey(String UserName) throws FileNotFoundException {
+        Scanner input = new Scanner(new File("klucze_server.txt"));
+
+        while (input.hasNext()) {
+            String usr = input.next();
+            String pass = input.next();
+
+            if (usr.equals(UserName)) {
+                ClientPublicKey = pass;
+                break;
+            }
+        }
+        return ClientPublicKey;
     }
 }
