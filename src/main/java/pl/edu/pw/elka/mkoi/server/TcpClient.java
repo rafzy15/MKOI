@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import jdk.nashorn.internal.objects.Global;
@@ -39,13 +41,14 @@ public class TcpClient extends Thread {
     private ServerSocket serverSocket;
     private HMAC hmac = new HMAC();
     private JSONcreator jSONcreator = JSONcreator.getInstance();
-    private String user = "rafal";
+//    private String user = "rafal";
     private boolean serverSendingFile = false;
     private String filePath = "";
     private String fileName = "";
     private String hash;
     private String listFiles = "";
     private Socket socket = null;
+    private String clientKey = "key";
 
     public static void main(String[] args) throws IOException {
         try {
@@ -114,7 +117,8 @@ public class TcpClient extends Thread {
         try {
             dis = new DataInputStream(socket.getInputStream());
             while (dis.read(buffer, 0, buffer.length) != -1) {
-                byte[] ownGeneratedMac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);;
+                System.out.println("Client says : klucz użytkownika " + clientKey);
+                byte[] ownGeneratedMac = hmac.hmac(clientKey.getBytes(), buffer, new SHA3.Digest512(), 64);;
                 dis.read(hmacAttached, 0, hmacAttached.length);
                 if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                     String comming = new String(buffer);
@@ -123,7 +127,6 @@ public class TcpClient extends Thread {
                         JSONObject jobject = new JSONObject(new String(buffer));
                         if (jobject.getString(Properties.MESSAGE_TYPE).equals(Properties.RESPONSE_TYPE)) {
                             switch (jobject.getString(Properties.MESSAGE_BODY)) {
-
                                 case "ACK-to-login":
                                     System.out.println("Client says: ACK to login \n" + jobject);
                                     return 1;
@@ -178,7 +181,7 @@ public class TcpClient extends Thread {
         FileInputStream fis = new FileInputStream(file);
         byte[] buffer = new byte[4096];
         while (fis.read(buffer) > 0) {
-            byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+            byte[] mac = hmac.hmac(clientKey.getBytes(), buffer, new SHA3.Digest512(), 64);
             dos.write(buffer);
             dos.write(mac);
             System.out.println("Client says : mac = "
@@ -192,7 +195,7 @@ public class TcpClient extends Thread {
                 toString().getBytes();
         System.out.println(new JSONObject(new String(json)));
         buffer1 = fillArray(buffer1, json);
-        byte[] mac = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+        byte[] mac = hmac.hmac(clientKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
         dos.write(buffer1);
         dos.write(mac);
         System.out.println("Client says : sending ACK with MAC = "
@@ -206,7 +209,7 @@ public class TcpClient extends Thread {
         byte[] buffer = new byte[4096];
 
         buffer = fillArray(buffer, json);
-        byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+        byte[] mac = hmac.hmac(clientKey.getBytes(), buffer, new SHA3.Digest512(), 64);
         dos.write(buffer);
         dos.write(mac);
     }
@@ -241,7 +244,7 @@ public class TcpClient extends Thread {
                 toString().getBytes();
         System.out.println(new JSONObject(new String(json)));
         buffer1 = fillArray(buffer1, json);
-        byte[] mac = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+        byte[] mac = hmac.hmac(clientKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
         dos.write(buffer1);
         dos.write(mac);
         System.out.println("Client says : sending ACK with MAC = "
@@ -259,7 +262,18 @@ public class TcpClient extends Thread {
         byte[] ownGeneratedSHA = SHA3.digest(bytesFile);
         return Hex.toHexString(ownGeneratedSHA);
     }
-
+    public void setKeyFromFile(String UserName) throws FileNotFoundException {
+        Scanner input = new Scanner(new File("client_keys.txt"));
+        while (input.hasNext()) {
+            String usr = input.next();
+            String pass = input.next();
+            
+            if (usr.equals(UserName)) {
+                clientKey = pass;
+                break;
+            }
+        }
+    }
     public String getListFiles() {
         return listFiles;
     }

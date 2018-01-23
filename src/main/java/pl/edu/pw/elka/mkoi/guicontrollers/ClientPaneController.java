@@ -78,6 +78,7 @@ public class ClientPaneController {
             TcpClient tcpClient = TcpClient.getInstance();
             byte[] jsonBytes = tcpClient.createGetByteJson(filePath, fileName, LoginPaneController.loggedAs);
             int response = tcpClient.sendMessages(jsonBytes);
+
         }
 
     }

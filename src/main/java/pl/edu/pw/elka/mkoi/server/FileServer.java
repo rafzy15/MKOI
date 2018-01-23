@@ -43,7 +43,7 @@ public class FileServer extends Thread {
     private boolean clientSendingFile = false;
     private JSONcreator jSONcreator = JSONcreator.getInstance();
     private String login = "";
-    private String ClientPublicKey = "";
+    private String ClientPublicKey = "key";
 
     public FileServer(int receivePort) {
         try {
@@ -74,7 +74,8 @@ public class FileServer extends Thread {
         DataOutputStream dos = new DataOutputStream(toSendSocket.getOutputStream());
         DataInputStream dis = new DataInputStream(incomingSocket.getInputStream());
         while (dis.read(buffer, 0, buffer.length) != -1) {
-            byte[] ownGeneratedMac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+            System.out.println("Server says: klucz klienta " + ClientPublicKey);
+            byte[] ownGeneratedMac = hmac.hmac(ClientPublicKey.getBytes(), buffer, new SHA3.Digest512(), 64);
             dis.read(hmacAttached, 0, hmacAttached.length);
             if (hmacsEquals(hmacAttached, ownGeneratedMac)) {
                 String comming = new String(buffer);
@@ -86,18 +87,23 @@ public class FileServer extends Thread {
                             System.out.println("Server says :  I received (HMAC OK) \n" + clientMessage.toString());
                             byte[] buffer1 = new byte[4096];
                             byte[] json = null;
-                            if (verifyUser(clientMessage.getString("Login"), clientMessage.getString("Password"))) {
+                            login = clientMessage.getString("Login");
+                            boolean loginOk
+                                    = verifyUser(clientMessage.getString("Login"), clientMessage.getString("Password"));
+                            if (loginOk) {
                                 json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
                                         "ACK-to-login").toString().getBytes();
-
                             } else {
                                 json = jSONcreator.createGeneralMessage(Properties.RESPONSE_TYPE,
                                         "Not allowed to log in").toString().getBytes();
                             }
                             buffer1 = fillArray(buffer1, json);
                             dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            byte[] ownGeneratedMacSend = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
+                            if (loginOk) {
+                                setUserKey(login);
+                            }
                             break;
                         }
                         case Properties.CLIENT_SEND_FILE: {
@@ -107,7 +113,7 @@ public class FileServer extends Thread {
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
                             dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            byte[] ownGeneratedMacSend = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
                             String fileName = clientMessage.getString(Properties.FILE);
                             String login = clientMessage.getString(Properties.LOGGED_AS);
@@ -128,7 +134,7 @@ public class FileServer extends Thread {
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
                             dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            byte[] ownGeneratedMacSend = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
                             break;
                         }
@@ -141,7 +147,7 @@ public class FileServer extends Thread {
                             byte[] buffer1 = new byte[4096];
                             buffer1 = fillArray(buffer1, json);
                             dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            byte[] ownGeneratedMacSend = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
                             sendFile(dos, fileName);
                             break;
@@ -161,7 +167,7 @@ public class FileServer extends Thread {
                             buffer1 = fillArray(buffer1, json);
                             System.out.println(buffer1.length);
                             dos.write(buffer1);
-                            byte[] ownGeneratedMacSend = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+                            byte[] ownGeneratedMacSend = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
                             dos.write(ownGeneratedMacSend);
 
                             break;
@@ -216,7 +222,7 @@ public class FileServer extends Thread {
         FileInputStream fis = new FileInputStream(file);
         byte[] buffer = new byte[4096];
         while (fis.read(buffer) > 0) {
-            byte[] mac = hmac.hmac("key".getBytes(), buffer, new SHA3.Digest512(), 64);
+            byte[] mac = hmac.hmac(ClientPublicKey.getBytes(), buffer, new SHA3.Digest512(), 64);
             dos.write(buffer);
             dos.write(mac);
             System.out.println("Server says : my mac = "
@@ -229,7 +235,7 @@ public class FileServer extends Thread {
         byte[] json = jSONcreator.createGeneralMessage(Properties.FINISHED_SENDING, "OK").
                 toString().getBytes();
         buffer1 = fillArray(buffer1, json);
-        byte[] mac = hmac.hmac("key".getBytes(), buffer1, new SHA3.Digest512(), 64);
+        byte[] mac = hmac.hmac(ClientPublicKey.getBytes(), buffer1, new SHA3.Digest512(), 64);
         dos.write(buffer1);
         dos.write(mac);
         System.out.println("Server says : sending ACK with MAC = "
@@ -275,7 +281,7 @@ public class FileServer extends Thread {
         return results;
     }
 
-    public String ReadUserKey(String UserName) throws FileNotFoundException {
+    public void setUserKey(String UserName) throws FileNotFoundException {
         Scanner input = new Scanner(new File("klucze_server.txt"));
 
         while (input.hasNext()) {
@@ -287,6 +293,5 @@ public class FileServer extends Thread {
                 break;
             }
         }
-        return ClientPublicKey;
     }
 }

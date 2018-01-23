@@ -58,6 +58,7 @@ public class LoginPaneController implements Initializable {
         } else {
             loggedAs = LoginUserField.getText();
             showMenuClient();
+            tcpClient.setKeyFromFile(loggedAs);
         }
     }
 
